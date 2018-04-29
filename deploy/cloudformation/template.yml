@@ -21,3 +21,43 @@ Resources:
             Effect: Allow
             Resource: !Sub arn:aws:s3:::${ContentsBucket}/*
             Principal: "*"
+
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      Schema:
+        - Name: 'email'
+          StringAttributeConstraints:
+            MinLength: 0
+            MaxLength: 2048
+          Required: true
+          AttributeDataType: String
+          Mutable: true
+      AliasAttributes: [ 'email' ]
+      AutoVerifiedAttributes: [ 'email' ]
+      EmailVerificationSubject: 'Your verification code'
+      EmailVerificationMessage: 'Your confirmation code is {####}.'
+      MfaConfiguration: 'OFF'
+      UserPoolName: !Ref AWS::StackName
+      Policies:
+        PasswordPolicy:
+          RequireLowercase: false
+          RequireSymbols: false
+          RequireNumbers: false
+          MinimumLength: 6
+          RequireUppercase: false
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: 'pict-app'
+      GenerateSecret: false
+      UserPoolId: !Ref CognitoUserPool
+
+Outputs:
+  CognitoUserPoolId:
+    Value: !Ref CognitoUserPool
+  CognitoUserPoolClientId:
+    Value: !Ref CognitoUserPoolClient
+
+
