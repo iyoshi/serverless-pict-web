@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style>
-.footer: {
+.footer {
   color: #FFFFFF;
   font-size: 87.5%;
   border-top: 1px solid #eee;

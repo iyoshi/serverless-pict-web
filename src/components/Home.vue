@@ -46,7 +46,7 @@ export default {
   methods: {
 
     listImages: () => {
-      const self = this
+      let self = this
 
       axios
         .get(config.API_BASE_URL + '/images')
@@ -60,7 +60,7 @@ export default {
       this.uploadFile = event.target.files[0]
     },
 
-    uploadFile: () => {
+    uploadImage: () => {
       let file = this.uploadFile
       let json = null
       let _this = this
@@ -71,7 +71,11 @@ export default {
       }
 
       axios
-        .post(config.API_BASE_URL + '/images/', JSON.stringify(data))
+        .post(config.API_BASE_URL + '/images', JSON.stringify(data), {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
         .then((res) => {
           json = JSON.parse(JSON.stringify(res.data))
 
