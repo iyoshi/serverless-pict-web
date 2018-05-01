@@ -4,6 +4,7 @@ import Home from '@/components/Home'
 import Signup from '@/components/Signup'
 import Confirm from '@/components/Confirm'
 import Login from '@/components/Login'
+import Photo from '@/components/photo'
 
 import auth from '@/auth'
 
@@ -44,6 +45,12 @@ export default new Router({
         auth.logout()
         next('/')
       }
+    },
+    {
+      path: '/photo',
+      name: 'Photo',
+      component: Photo,
+      beforeEnter: requireAuth
     }
   ]
 })

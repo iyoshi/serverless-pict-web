@@ -8,10 +8,10 @@
         </div>
       </div>
 
-      <div v-for="image in images" :key="image.image_id" class="photo pure-u-1-3 pure-u-md-1-3 pure-u-lg-1-3 pure-u-xl-1-3" >
-        <a v-bind:href="image_url_base + image.image_id + '.' + image.type.split('/')[1]" target="_blank" >
-          <img v-bind:src="image_url_base + image.image_id + '.' + image.type.split('/')[1]" />
-        </a>
+      <div v-for="image in images" :key="image.photo_id" class="photo pure-u-1-3 pure-u-md-1-3 pure-u-lg-1-3 pure-u-xl-1-3" >
+        <router-link v-bind:to="{ name: 'Photo' ,params: { photo_id: image.photo_id }}" >
+            <img v-bind:src="image_url_base + '/' +image.photo_id + '.' + image.type.split('/')[1]" />
+        </router-link>
       </div>
 
       <div class="pure-u-1 form-box" id="upload-image" >
@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import * as AWS from 'aws-sdk'
 import axios from 'axios'
 
 import auth from '../auth'
@@ -90,11 +91,20 @@ export default {
         .then((res) => {
           json = JSON.parse(JSON.stringify(res.data))
 
-          // upload image file to S3
-          axios
-            .put(json.signed_url, file, {
-              'Content-Type': file.type
+          AWS.config.region = config.AWS_REGION
+          AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: config.COGNITO_IDENTITY_POOL_ID
+          })
+
+          let s3 = new AWS.S3()
+          s3
+            .upload({
+              Bucket: config.PHOTOS_BUCKET,
+              Key: json.photo_id + '.' + file.type.split('/')[1],
+              Body: file,
+              ContentType: data.type
             })
+            .promise()
             .then((res) => {
               json.status = 'uploaded'
               axios
