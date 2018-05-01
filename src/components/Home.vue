@@ -27,11 +27,13 @@
 
 <script>
 import axios from 'axios'
+
+import auth from '../auth'
 import config from '../config'
 
 export default {
 
-  data: () => {
+  data () {
     return {
       image_url_base: config.IMAGE_BASE_URL,
       uploadFile: null,
@@ -39,28 +41,34 @@ export default {
     }
   },
 
-  created: () => {
+  created () {
     this.listImages()
   },
 
   methods: {
 
-    listImages: () => {
+    listImages: function () {
       let self = this
+      let authHeader = auth.getIdToken()
 
       axios
-        .get(config.API_BASE_URL + '/images')
+        .get(config.API_BASE_URL + '/images', {
+          headers: {
+            'Authorization': authHeader
+          }
+        })
         .then((res) => {
-          const images = JSON.parse(res.data)
-          self.$data.images = images.images
+          console.log(JSON.stringify(res.data))
+          const images = res.data
+          self.$data.images = images.photos
         })
     },
 
-    onFileChange: (event) => {
+    onFileChange: function (event) {
       this.uploadFile = event.target.files[0]
     },
 
-    uploadImage: () => {
+    uploadImage: function () {
       let file = this.uploadFile
       let json = null
       let _this = this
@@ -70,10 +78,13 @@ export default {
         type: file.type
       }
 
+      let authHeader = auth.getIdToken()
+
       axios
         .post(config.API_BASE_URL + '/images', JSON.stringify(data), {
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': authHeader
           }
         })
         .then((res) => {
@@ -87,7 +98,11 @@ export default {
             .then((res) => {
               json.status = 'uploaded'
               axios
-                .put(config.API_BASE_URL + '/images', json)
+                .put(config.API_BASE_URL + '/images', json, {
+                  headers: {
+                    'Authorization': authHeader
+                  }
+                })
                 .then((res) => {
                   alert('Successfully upload photo.')
                   _this.$router.go(_this.$router.currentRoute)
