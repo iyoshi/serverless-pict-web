@@ -137,5 +137,16 @@ export default {
     } else {
       return false
     }
+  },
+
+  logout: function () {
+    let userPool = new CognitoUserPool({
+      UserPoolId: config.COGNITO_USER_POOL_ID,
+      ClientId: config.COGNITO_USER_CLIENT_ID
+    })
+
+    userPool.getCurrentUser().signOut()
+    // this.onChange(false)
+    console.log('Successfully logged out')
   }
 }
